@@ -111,8 +111,11 @@ class PluginUninstallUninstall extends CommonDBTM {
        $input                = [];
        $input["id"]          = $id;
        $input["entities_id"] = $entity;
-       $input['is_dynamic']  = $item->fields['is_dynamic']; #to prevent locked field
        $fields               = [];
+
+       if ($model->fields["ignore_locked_field"]) {
+         $input["ignore_locked_field"] = true;
+       }
 
        //Hook to perform actions before item is being uninstalled
        $item->fields['_uninstall_event'] = $model->getID();

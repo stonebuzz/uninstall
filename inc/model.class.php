@@ -239,6 +239,15 @@ class PluginUninstallModel extends CommonDBTM {
                        'emptylabel'  => __('None')]);
       echo "</td></tr>";
 
+
+      echo "<tr class='tab_bg_1'><td>" . __('Ignore Locked field', 'uninstall') . "</td>";
+      echo "<td>";
+      $tooltip = "sdfsdf";
+      Dropdown::showYesNo("ignore_locked_field",
+                           (isset($this->fields["ignore_locked_field"])
+                           ? $this->fields["ignore_locked_field"] : 0), -1, ['tooltip' => $tooltip]);
+      echo "</td></tr>";
+
       echo "<tr class='tab_bg_1'>";
       if ($this->fields["types_id"] != self::TYPE_MODEL_REPLACEMENT) {
          echo "<td>" . __('Action on group', 'uninstall') . "</td><td>";
@@ -376,7 +385,6 @@ class PluginUninstallModel extends CommonDBTM {
       Dropdown::showYesNo("raz_antivirus",
                           (isset($this->fields["raz_antivirus"])
                            ? $this->fields["raz_antivirus"] : 1));
-      echo "</td></tr>";
    }
 
    function showPartFormRemplacement() {
@@ -1194,6 +1202,11 @@ class PluginUninstallModel extends CommonDBTM {
             );
          }
 
+
+         if (!$DB->fieldExists($table, 'ignore_locked_field')) {
+            $migration->addField($table, 'ignore_locked_field', "integer", ["value" => 1]);
+         }
+
          $migration->migrationOneTable($table);
 
       } else {
@@ -1237,7 +1250,8 @@ class PluginUninstallModel extends CommonDBTM {
                     `replace_netports` tinyint NOT NULL DEFAULT '0',
                     `replace_direct_connections` tinyint NOT NULL DEFAULT '0',
                     `overwrite` tinyint NOT NULL DEFAULT '0',
-                    `replace_method` int NOT NULL DEFAULT '2',
+                    `ignore_locked_field` int NOT NULL DEFAULT '1',
+                    `raz_glpiinventory` int NOT NULL DEFAULT '1',
                     `raz_fusioninventory` int NOT NULL DEFAULT '1',
                     `raz_plugin_fields` tinyint NOT NULL DEFAULT '1',
                     `replace_contact` tinyint NOT NULL DEFAULT '0',
@@ -1298,6 +1312,7 @@ class PluginUninstallModel extends CommonDBTM {
          $tmp['raz_budget']                 = 1;
          $tmp['raz_user']                   = 1;
          $tmp['raz_ocs_registrykeys']       = 1;
+         $tmp['ignore_locked_field']        = 1;
          $tmp['raz_fusioninventory']        = 1;
          $tmp['raz_plugin_fields']          = 1;
          $tmp['comment']                    = '';

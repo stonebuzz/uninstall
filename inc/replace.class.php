@@ -80,13 +80,18 @@ class PluginUninstallReplace extends CommonDBTM {
          Plugin::doHook("plugin_uninstall_replace_before", $olditem);
 
          // Retrieve informations
+         $input = [
+            'id'           => $olditem_id,
+            'states_id'    => $model->fields['states_id']
+         ];
+
+         if ($model->fields["ignore_locked_field"]) {
+            $input["ignore_locked_field"] = true;
+         }
 
          //States
          if ($model->fields['states_id'] != 0) {
-            $olditem->update(['id'           => $olditem_id,
-                              'is_dynamic'   => $olditem->fields['is_dynamic'], #to prevent locked field
-                              'states_id'    => $model->fields['states_id']],
-                             false);
+            $olditem->update($input, false);
          }
 
          // METHOD REPLACEMENT 1 : Archive
@@ -369,10 +374,14 @@ class PluginUninstallReplace extends CommonDBTM {
                   break;
 
                default:
-                  $olditem->update(['id'           => $olditem_id,
-                                    'is_dynamic'   => $olditem->fields['is_dynamic'], #to prevent locked field
-                                    'locations_id' => $location],
-                                  false);
+                  $input = [
+                     'id'           => $olditem_id,
+                     'locations_id' => $location
+                  ];
+                  if ($model->fields["ignore_locked_field"]) {
+                     $input["ignore_locked_field"] = true;
+                  }
+                  $olditem->update($input, false);
                   break;
             }
          }
@@ -441,10 +450,15 @@ class PluginUninstallReplace extends CommonDBTM {
                                 false);
 
                // Update comment for olditem
-               $olditem->update(['id'           => $olditem_id,
-                                 'is_dynamic'   => $olditem->fields['is_dynamic'], #to prevent locked field
-                                 'comment'      => Toolbox::addslashes_deep($commentold)],
-                                false);
+               $input = [
+                  'id'           => $olditem_id,
+                  'comment'      => Toolbox::addslashes_deep($commentold)
+               ];
+
+               if ($model->fields["ignore_locked_field"]) {
+                  $input["ignore_locked_field"] = true;
+               }
+               $olditem->update($input, false);
 
                // Delete OLD item from DB (not PURGE) only if delete is requested
                PluginUninstallUninstall::addUninstallLog([
